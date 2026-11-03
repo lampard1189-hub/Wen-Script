@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Wen Script is an experimental reversible writing system. Convert English into Wen symbols and decode it back.">
+  <title>Wen Script — English ↔ Wen</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="#" aria-label="Wen Script home"><span class="mark">W</span> WEN SCRIPT</a>
+    <span class="version">PUBLIC ALPHA · 0.1</span>
+  </header>
+
+  <main>
+    <section class="intro">
+      <p class="eyebrow">A NEW WAY TO WRITE</p>
+      <h1>Words, <span>reimagined.</span></h1>
+      <p class="lead">Type in English. Transform it into Wen Script. Decode it whenever you want.</p>
+    </section>
+
+    <section class="translator" aria-label="Wen Script translator">
+      <div class="panel">
+        <div class="panel-head">
+          <label for="english">ENGLISH</label>
+          <button class="text-button" id="clearBtn" type="button">Clear</button>
+        </div>
+        <textarea id="english" spellcheck="false" placeholder="Type something here…">Hello, world!</textarea>
+        <div class="panel-foot"><span id="charCount">13 characters</span><span>Input text</span></div>
+      </div>
+
+      <div class="actions">
+        <button id="encodeBtn" class="primary" type="button">Encode to Wen <span aria-hidden="true">→</span></button>
+        <button id="decodeBtn" class="secondary" type="button"><span aria-hidden="true">←</span> Decode to English</button>
+        <label class="toggle"><input type="checkbox" id="binaryToggle"> Show binary guide</label>
+      </div>
+
+      <div class="panel output-panel">
+        <div class="panel-head">
+          <label for="wenOutput">WEN SCRIPT</label>
+          <button class="text-button" id="copyBtn" type="button">Copy</button>
+        </div>
+        <textarea id="wenOutput" spellcheck="false" placeholder="Your Wen Script will appear here…" aria-label="Wen Script output"></textarea>
+        <div class="panel-foot"><span id="outputCount">0 symbols</span><span id="status" role="status">Ready</span></div>
+      </div>
+    </section>
+
+    <section class="guide">
+      <div>
+        <p class="eyebrow">THE IDEA</p>
+        <h2>A script with<br>its own identity.</h2>
+      </div>
+      <div class="guide-copy">
+        <p>Wen Script 0.1 uses a fixed symbol for each English letter. The same input always produces the same output, and the decoder reverses the mapping.</p>
+        <p>The binary guide shows each letter's five-bit alphabet index. It is a learning aid, not encryption.</p>
+        <p class="notice"><strong>Important:</strong> Wen Script is an experimental substitution alphabet. It is not secure encryption, and this first version supports the English alphabet, digits, spaces and common punctuation.</p>
+      </div>
+    </section>
+
+    <section class="alphabet">
+      <div class="alphabet-head">
+        <div><p class="eyebrow">THE FIRST ALPHABET</p><h2>26 letters. 26 symbols.</h2></div>
+        <p>Wen Script · Alphabet v0.1</p>
+      </div>
+      <div id="alphabetGrid" class="alphabet-grid" aria-label="Wen Script alphabet"></div>
+    </section>
+  </main>
+
+  <footer><span>WEN SCRIPT · AN OPEN EXPERIMENT</span><span>Version 0.1 · MIT License</span></footer>
+  <script src="assets/wen-script.js"></script>
+</body>
+</html>
