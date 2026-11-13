@@ -32,6 +32,7 @@ class LLVMCodeGenerator:
     def llvm_type(self, value_type):
         return {
             "number": "i64",
+            "decimal": "double",
             "boolean": "i1",
             "string": "ptr"
         }[value_type]
@@ -42,9 +43,7 @@ class LLVMCodeGenerator:
         )
 
         if isinstance(expression, Number):
-            if not isinstance(expression.value, int):
-                raise CodegenError("Only integers are supported.")
-            return "number"
+            return "decimal" if isinstance(expression.value, float) else "number"
 
         if isinstance(expression, String):
             return "string"
@@ -60,23 +59,20 @@ class LLVMCodeGenerator:
             return environment[expression.name]
 
         if isinstance(expression, Unary):
-            if expression.operator == "-" and (
-                self.infer_type(expression.operand, environment) == "number"
-            ):
-                return "number"
+            operand_type = self.infer_type(expression.operand, environment)
+            if expression.operator == "-" and operand_type in {"number", "decimal"}:
+                return operand_type
             raise CodegenError("Unsupported unary operation.")
 
         if isinstance(expression, Binary):
             left_type = self.infer_type(expression.left, environment)
             right_type = self.infer_type(expression.right, environment)
 
-            if left_type != "number" or right_type != "number":
-                raise CodegenError(
-                    "Binary operations currently require integers."
-                )
+            if left_type not in {"number", "decimal"} or right_type not in {"number", "decimal"}:
+                raise CodegenError("Binary operations require numbers.")
 
             if expression.operator in {"+", "-", "*", "/", "%"}:
-                return "number"
+                return "decimal" if "decimal" in {left_type, right_type} else "number"
 
             if expression.operator in {
                 "==", "!=", "<", ">", "<=", ">="
@@ -139,9 +135,8 @@ class LLVMCodeGenerator:
         )
 
         if isinstance(expression, Number):
-            if not isinstance(expression.value, int):
-                raise CodegenError("Only integers are supported.")
-            return str(expression.value), "number"
+            value_type = "decimal" if isinstance(expression.value, float) else "number"
+            return repr(expression.value), value_type
 
         if isinstance(expression, String):
             name = f"@.str{self.string_counter}"
@@ -187,10 +182,13 @@ class LLVMCodeGenerator:
                 expression.operand
             )
 
-            if expression.operator == "-" and value_type == "number":
+            if expression.operator == "-" and value_type in {"number", "decimal"}:
                 result = self.new_temp()
-                self.emit(f"{result} = sub i64 0, {value}")
-                return result, "number"
+                if value_type == "decimal":
+                    self.emit(f"{result} = fneg double {value}")
+                else:
+                    self.emit(f"{result} = sub i64 0, {value}")
+                return result, value_type
 
             raise CodegenError("Unsupported unary operation.")
 
@@ -202,38 +200,54 @@ class LLVMCodeGenerator:
                 expression.right
             )
 
-            if left_type != "number" or right_type != "number":
-                raise CodegenError(
-                    "Binary operations currently require integers."
-                )
+            numeric_types = {"number", "decimal"}
+            if left_type not in numeric_types or right_type not in numeric_types:
+                raise CodegenError("Binary operations require numbers.")
 
-            operations = {
-                "+": ("add", "number"),
-                "-": ("sub", "number"),
-                "*": ("mul", "number"),
-                "/": ("sdiv", "number"),
-                "%": ("srem", "number"),
-                "==": ("icmp eq", "boolean"),
-                "!=": ("icmp ne", "boolean"),
-                "<": ("icmp slt", "boolean"),
-                ">": ("icmp sgt", "boolean"),
-                "<=": ("icmp sle", "boolean"),
-                ">=": ("icmp sge", "boolean"),
+            use_decimal = "decimal" in {left_type, right_type}
+            llvm_numeric_type = "double" if use_decimal else "i64"
+
+            if use_decimal:
+                if left_type == "number":
+                    converted = self.new_temp()
+                    self.emit(f"{converted} = sitofp i64 {left} to double")
+                    left = converted
+                if right_type == "number":
+                    converted = self.new_temp()
+                    self.emit(f"{converted} = sitofp i64 {right} to double")
+                    right = converted
+
+            operator = expression.operator
+            arithmetic_ops = {
+                "+": "fadd" if use_decimal else "add",
+                "-": "fsub" if use_decimal else "sub",
+                "*": "fmul" if use_decimal else "mul",
+                "/": "fdiv" if use_decimal else "sdiv",
+                "%": " frem" if use_decimal else "srem",
+            }
+            comparison_ops = {
+                "==": "oeq" if use_decimal else "eq",
+                "!=": "one" if use_decimal else "ne",
+                "<": "olt" if use_decimal else "slt",
+                ">": "ogt" if use_decimal else "sgt",
+                "<=": "ole" if use_decimal else "sle",
+                ">=": "oge" if use_decimal else "sge",
             }
 
-            if expression.operator not in operations:
-                raise CodegenError(
-                    f"Unsupported operator '{expression.operator}'"
-                )
-
-            operation, result_type = operations[expression.operator]
             result = self.new_temp()
+            if operator in arithmetic_ops:
+                operation = arithmetic_ops[operator].strip()
+                result_type = "decimal" if use_decimal else "number"
+                self.emit(f"{result} = {operation} {llvm_numeric_type} {left}, {right}")
+                return result, result_type
 
-            self.emit(
-                f"{result} = {operation} i64 {left}, {right}"
-            )
+            if operator in comparison_ops:
+                predicate = comparison_ops[operator]
+                instruction = "fcmp" if use_decimal else "icmp"
+                self.emit(f"{result} = {instruction} {predicate} {llvm_numeric_type} {left}, {right}")
+                return result, "boolean"
 
-            return result, result_type
+            raise CodegenError(f"Unsupported operator '{operator}'")
 
         raise CodegenError(
             f"Unsupported expression: {type(expression).__name__}"
@@ -294,6 +308,12 @@ class LLVMCodeGenerator:
                     self.emit(
                         f"call i32 (ptr, ...) @printf("
                         f"ptr @.fmt_str, ptr {value})"
+                    )
+
+                elif value_type == "decimal":
+                    self.emit(
+                        f"call i32 (ptr, ...) @printf("
+                        f"ptr @.fmt_float, double {value})"
                     )
 
                 else:
@@ -410,6 +430,7 @@ class LLVMCodeGenerator:
 
 @.fmt_int = private unnamed_addr constant [6 x i8] c"%lld\\0A\\00"
 @.fmt_str = private unnamed_addr constant [4 x i8] c"%s\\0A\\00"
+@.fmt_float = private unnamed_addr constant [4 x i8] c"%g\\0A\\00"
 
 {globals_text}
 

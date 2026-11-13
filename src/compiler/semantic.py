@@ -108,7 +108,7 @@ class SemanticAnalyzer:
         )
 
         if isinstance(expression, Number):
-            return "number"
+            return "decimal" if isinstance(expression.value, float) else "number"
 
         if isinstance(expression, String):
             return "string"
@@ -129,8 +129,8 @@ class SemanticAnalyzer:
                 expression.operand
             )
 
-            if expression.operator == "-" and operand_type == "number":
-                return "number"
+            if expression.operator == "-" and operand_type in {"number", "decimal"}:
+                return operand_type
 
             raise SemanticError(
                 "Unary minus requires a number."
@@ -146,16 +146,18 @@ class SemanticAnalyzer:
             comparisons = {"<", ">", "<=", ">="}
             equality = {"==", "!="}
 
+            numeric_types = {"number", "decimal"}
+
             if operator in arithmetic:
-                if left_type != "number" or right_type != "number":
+                if left_type not in numeric_types or right_type not in numeric_types:
                     raise SemanticError(
                         f"Operator '{operator}' requires numbers."
                     )
 
-                return "number"
+                return "decimal" if "decimal" in {left_type, right_type} else "number"
 
             if operator in comparisons:
-                if left_type != "number" or right_type != "number":
+                if left_type not in numeric_types or right_type not in numeric_types:
                     raise SemanticError(
                         f"Comparison '{operator}' requires numbers."
                     )
@@ -163,7 +165,9 @@ class SemanticAnalyzer:
                 return "boolean"
 
             if operator in equality:
-                if left_type != right_type:
+                if left_type != right_type and not (
+                    left_type in numeric_types and right_type in numeric_types
+                ):
                     raise SemanticError(
                         "Equality comparisons require matching types."
                     )

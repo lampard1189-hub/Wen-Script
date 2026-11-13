@@ -1,0 +1,6 @@
+let price = 12.5;
+let tax = 2.25;
+
+print price + tax;
+print price * 2;
+print price - tax;

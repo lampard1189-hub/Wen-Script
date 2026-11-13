@@ -146,6 +146,33 @@ class TestWenCompiler(unittest.TestCase):
         )
 
 
+
+class TestWenDecimal(unittest.TestCase):
+
+    def test_decimal_native_compilation(self):
+        source_file = ROOT / "examples" / "decimal.wen"
+
+        compilation = subprocess.run(
+            [sys.executable, str(ROOT / "src" / "main.py"),
+             str(source_file)],
+            cwd=ROOT,
+            capture_output=True,
+            text=True
+        )
+
+        self.assertEqual(compilation.returncode, 0, compilation.stderr)
+
+        executable = ROOT / "build" / "decimal"
+        execution = subprocess.run(
+            [str(executable)],
+            capture_output=True,
+            text=True
+        )
+
+        self.assertEqual(execution.returncode, 0)
+        self.assertEqual(execution.stdout, "14.75\n25\n10.25\n")
+
+
 if __name__ == "__main__":
     unittest.main()
 
