@@ -1,0 +1,14 @@
+let age = 20
+
+if age >= 18 {
+    print("Adult")
+} else {
+    print("Under 18")
+}
+
+let count = 1
+
+while count <= 5 {
+    print(count)
+    count = count + 1
+}
