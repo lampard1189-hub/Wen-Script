@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://lampard1189-hub.github.io/Wen-Script/sitemap.xml
