@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Wen Documentation | Programming Language</title>
+
+    <meta name="description" content="Official documentation for Wen, an experimental Python-inspired programming language with an LLVM-based compiler and native code generation.">
+
+    <meta name="keywords" content="Wen programming language, Wen documentation, programming language, LLVM compiler, Python-inspired language">
+
+    <meta name="author" content="Wen Programming Language">
+
+    <link rel="canonical" href="https://lampard1189-hub.github.io/Wen-Script/docs/">
+
+    <meta property="og:title" content="Wen Documentation">
+    <meta property="og:description" content="Learn Wen: installation, syntax, examples and compiler architecture.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://lampard1189-hub.github.io/Wen-Script/docs/">
+
+    <style>
+        :root {
+            --bg: #080d18;
+            --panel: #101827;
+            --panel2: #0c1422;
+            --text: #e8edf7;
+            --muted: #9ba9bd;
+            --accent: #70a5ff;
+            --border: #26354b;
+            --code: #080e19;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont,
+                "Segoe UI", sans-serif;
+            line-height: 1.7;
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        header {
+            border-bottom: 1px solid var(--border);
+            background: #0b1220;
+            padding: 20px 8%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo {
+            font-size: 23px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            font-size: 14px;
+        }
+
+        main {
+            max-width: 1050px;
+            margin: auto;
+            padding: 65px 24px 100px;
+        }
+
+        .hero {
+            margin-bottom: 55px;
+        }
+
+        .eyebrow {
+            color: var(--accent);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            font-size: clamp(38px, 7vw, 60px);
+            letter-spacing: -2px;
+            line-height: 1.1;
+            margin: 15px 0;
+        }
+
+        h2 {
+            font-size: 27px;
+            margin: 48px 0 15px;
+            letter-spacing: -0.7px;
+        }
+
+        h3 {
+            font-size: 18px;
+            margin: 24px 0 10px;
+        }
+
+        p {
+            color: var(--muted);
+            margin: 10px 0 16px;
+        }
+
+        .intro {
+            max-width: 720px;
+            font-size: 18px;
+        }
+
+        .notice {
+            background: #151d2c;
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-top: 25px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .card h3 {
+            margin-top: 0;
+        }
+
+        .card p {
+            margin-bottom: 0;
+        }
+
+        pre {
+            background: var(--code);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 15px 0 22px;
+            color: #c9dcff;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        code {
+            font-family: "SFMono-Regular", Consolas, monospace;
+        }
+
+        p code, li code {
+            color: #a9c8ff;
+            background: #142137;
+            padding: 2px 5px;
+            border-radius: 4px;
+        }
+
+        ul {
+            color: var(--muted);
+            padding-left: 23px;
+            margin: 12px 0;
+        }
+
+        li {
+            margin: 7px 0;
+        }
+
+        .pipeline {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .stage {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .arrow {
+            color: var(--accent);
+        }
+
+        .links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 30px 20px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            main {
+                padding-top: 45px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <a class="logo" href="../">Wen<span style="color:#70a5ff">.</span></a>
+
+    <nav>
+        <a href="../">Home</a>
+        <a href="#getting-started">Getting Started</a>
+        <a href="#syntax">Syntax</a>
+        <a href="#architecture">Architecture</a>
+        <a href="https://github.com/lampard1189-hub/Wen-Script">GitHub</a>
+    </nav>
+</header>
+
+<main>
+
+    <section class="hero">
+        <div class="eyebrow">Official Documentation</div>
+
+        <h1>Learn Wen.</h1>
+
+        <p class="intro">
+            Wen is an experimental, Python-inspired programming language
+            with an LLVM-based compiler that translates Wen source code
+            into native executables.
+        </p>
+
+        <div class="notice">
+            <strong>Development status:</strong>
+            Wen 0.2.0a1 is an experimental alpha release.
+            Language features and compiler behaviour may change.
+        </div>
+    </section>
+
+    <section>
+        <h2>01. Introduction</h2>
+
+        <p>
+            Wen is designed around readable programming syntax and
+            a compiler architecture that uses LLVM intermediate
+            representation before native compilation.
+        </p>
+
+        <div class="grid">
+            <div class="card">
+                <h3>Readable syntax</h3>
+                <p>A Python-inspired approach to variables, conditions,
+                loops and functions.</p>
+            </div>
+
+            <div class="card">
+                <h3>LLVM integration</h3>
+                <p>Wen generates LLVM intermediate representation
+                as part of its compilation process.</p>
+            </div>
+
+            <div class="card">
+                <h3>Native output</h3>
+                <p>The compiler uses Clang to produce a native executable.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="getting-started">
+        <h2>02. Getting Started</h2>
+
+        <h3>Requirements</h3>
+
+        <ul>
+            <li>Python 3.10 or newer.</li>
+            <li>LLVM Clang available on your system.</li>
+            <li>A supported environment for running native executables.</li>
+        </ul>
+
+        <h3>Installation</h3>
+
+        <p>Install the current experimental release using pip:</p>
+
+        <pre><code>python3 -m pip install wen-lang==0.2.0a1</code></pre>
+
+        <h3>Your first Wen program</h3>
+
+        <p>Create a file called <code>hello.wen</code>:</p>
+
+        <pre><code>let name = "Wen"
+
+print("Hello from Wen!")
+print(name)</code></pre>
+
+        <h3>Compile your program</h3>
+
+        <pre><code>wen hello.wen</code></pre>
+
+        <p>
+            The compiler generates LLVM IR and a native executable
+            inside a <code>build/</code> directory in your current
+            working directory.
+        </p>
+
+        <p>On macOS or Linux, run the generated executable with:</p>
+
+        <pre><code>./build/hello</code></pre>
+    </section>
+
+    <section id="syntax">
+        <h2>03. Language Syntax</h2>
+
+        <h3>Variables</h3>
+
+        <pre><code>let name = "Wen"
+let version = 2
+let price = 12.5</code></pre>
+
+        <p>Declare variables with the <code>let</code> keyword.</p>
+
+        <h3>Output</h3>
+
+        <pre><code>print("Hello, Wen!")
+print version
+print(price)</code></pre>
+
+        <p>
+            Both parenthesised and non-parenthesised print statements
+            are supported.
+        </p>
+
+        <h3>Arithmetic</h3>
+
+        <pre><code>let a = 10
+let b = 5
+
+print(a + b)
+print(a - b)
+print(a * b)
+print(a / b)
+print(a % b)</code></pre>
+
+        <p>Arithmetic operators include addition, subtraction,
+        multiplication, division and remainder.</p>
+
+        <h3>Conditions</h3>
+
+        <pre><code>let age = 20
+
+if age >= 18 {
+    print("Adult")
+} else {
+    print("Under 18")
+}</code></pre>
+
+        <h3>Loops</h3>
+
+        <pre><code>let count = 1
+
+while count <= 5 {
+    print(count)
+    count = count + 1
+}</code></pre>
+
+        <h3>Functions</h3>
+
+        <pre><code>fn add(a, b) {
+    return a + b
+}
+
+let result = add(10, 5)
+print(result)</code></pre>
+
+        <h3>Booleans</h3>
+
+        <pre><code>let active = true
+let finished = false
+
+print(active)
+print(finished)</code></pre>
+
+        <h3>Comments</h3>
+
+        <pre><code># This is a Wen comment
+let score = 100</code></pre>
+
+        <h3>Operators</h3>
+
+        <div class="card">
+            <p><strong>Arithmetic:</strong>
+                <code>+</code> <code>-</code> <code>*</code>
+                <code>/</code> <code>%</code>
+            </p>
+
+            <p><strong>Comparison:</strong>
+                <code>==</code> <code>!=</code> <code>&lt;</code>
+                <code>&gt;</code> <code>&lt;=</code> <code>&gt;=</code>
+            </p>
+
+            <p><strong>Assignment:</strong> <code>=</code></p>
+        </div>
+
+        <p>
+            Statements can be separated by newlines or semicolons.
+            Blocks use curly braces.
+        </p>
+    </section>
+
+    <section id="architecture">
+        <h2>04. Compiler Architecture</h2>
+
+        <p>
+            Wen follows a multi-stage compilation process.
+            Source code passes through lexical analysis, parsing,
+            semantic analysis, LLVM code generation and native compilation.
+        </p>
+
+        <div class="pipeline">
+            <div class="stage">Wen Source</div>
+            <span class="arrow">→</span>
+            <div class="stage">Lexer</div>
+            <span class="arrow">→</span>
+            <div class="stage">Parser</div>
+            <span class="arrow">→</span>
+            <div class="stage">Semantic Analysis</div>
+            <span class="arrow">→</span>
+            <div class="stage">LLVM IR</div>
+            <span class="arrow">→</span>
+            <div class="stage">Clang</div>
+            <span class="arrow">→</span>
+            <div class="stage">Native Executable</div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h3>1. Lexical Analysis</h3>
+                <p>The lexer converts source characters into tokens.</p>
+            </div>
+
+            <div class="card">
+                <h3>2. Parsing</h3>
+                <p>The parser builds an abstract syntax tree from tokens.</p>
+            </div>
+
+            <div class="card">
+                <h3>3. Semantic Analysis</h3>
+                <p>The semantic analyzer processes the parsed program.</p>
+            </div>
+
+            <div class="card">
+                <h3>4. LLVM Code Generation</h3>
+                <p>The code generator produces LLVM intermediate representation.</p>
+            </div>
+
+            <div class="card">
+                <h3>5. Native Compilation</h3>
+                <p>Clang compiles the generated LLVM IR into an executable.</p>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>05. Examples</h2>
+
+        <p>
+            The source repository contains example programs covering
+            arithmetic, control flow, decimals, functions and basic output.
+        </p>
+
+        <div class="links">
+            <a href="https://github.com/lampard1189-hub/Wen-Script/tree/development/v0.2/examples">Browse Wen examples →</a>
+            <a href="https://github.com/lampard1189-hub/Wen-Script">View source code →</a>
+            <a href="https://pypi.org/project/wen-lang/0.2.0a1/">View package on PyPI →</a>
+        </div>
+    </section>
+
+    <section>
+        <h2>06. Project Information</h2>
+
+        <p>
+            Wen is an open-source programming language project
+            under active development. Its source code, compiler
+            implementation and development history are available
+            on GitHub.
+        </p>
+
+        <div class="links">
+            <a href="../">Wen Homepage →</a>
+            <a href="https://github.com/lampard1189-hub/Wen-Script">GitHub Repository →</a>
+            <a href="https://pypi.org/project/wen-lang/0.2.0a1/">PyPI Package →</a>
+        </div>
+    </section>
+
+</main>
+
+<footer>
+    Wen Programming Language · Experimental Alpha · Version 0.2.0a1
+</footer>
+
+</body>
+</html>
