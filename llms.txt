@@ -1,0 +1,51 @@
+# Wen Programming Language
+
+> Wen is an experimental, Python-inspired programming language with an LLVM-based compiler that generates native executables.
+
+## Official Resources
+
+Homepage: https://lampard1189-hub.github.io/Wen-Script/
+Documentation: https://lampard1189-hub.github.io/Wen-Script/docs/
+GitHub: https://github.com/lampard1189-hub/Wen-Script
+PyPI: https://pypi.org/project/wen-lang/
+Examples: https://github.com/lampard1189-hub/Wen-Script/tree/development/v0.2/examples
+
+## Overview
+
+Wen is an open-source experimental programming language.
+
+Its compiler uses lexical analysis, parsing, semantic analysis, LLVM IR generation and Clang native compilation.
+
+Current version: 0.2.0a1 (experimental alpha).
+
+## Installation
+
+    python3 -m pip install wen-lang==0.2.0a1
+
+Requirements:
+- Python 3.10 or newer.
+- LLVM Clang available on the system.
+
+## Language Features
+
+- Variables declared with let.
+- Strings, numbers and Boolean values.
+- Print statements.
+- Arithmetic and comparison operators.
+- if and else conditional statements.
+- while loops.
+- Function definitions, parameters, calls and return statements.
+- Comments beginning with #.
+- Newline and semicolon statement separation.
+
+## Compiler Architecture
+
+1. Lexer: converts source characters into tokens.
+2. Parser: builds an abstract syntax tree.
+3. Semantic Analyzer: performs semantic checks.
+4. LLVM Code Generator: produces LLVM intermediate representation.
+5. Clang: generates the native executable.
+
+## Project Status
+
+Wen 0.2.0a1 is an experimental alpha release. Features and compiler behaviour may change.
