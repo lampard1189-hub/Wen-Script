@@ -1,0 +1,417 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Wen Programming Language | A Language Built for Systems</title>
+
+    <meta name="description" content="Discover Wen, a programming language with LLVM-based native code generation. Install Wen using pip and start writing programs.">
+
+    <meta name="keywords" content="Wen Programming Language, Wen compiler, wen-lang, LLVM compiler, Python programming language">
+
+    <meta name="author" content="Wen Programming Language">
+
+    <meta property="og:title" content="Wen Programming Language">
+    <meta property="og:description" content="A programming language with LLVM-based native code generation.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://lampard1189-hub.github.io/Wen-Script/">
+
+    <meta name="theme-color" content="#080b14">
+
+    <link rel="canonical" href="https://lampard1189-hub.github.io/Wen-Script/">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: #080b14;
+            color: #e8edf8;
+            font-family: -apple-system, BlinkMacSystemFont,
+                         "Segoe UI", sans-serif;
+            line-height: 1.7;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 22px 9%;
+            border-bottom: 1px solid #20283b;
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            color: #78a9ff;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+            font-size: 14px;
+            color: #aab6ca;
+        }
+
+        .nav-links a:hover {
+            color: white;
+        }
+
+        .hero {
+            min-height: 570px;
+            padding: 110px 9% 90px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background:
+                radial-gradient(ellipse at 50% 0%, #182b51 0%, transparent 65%);
+        }
+
+        .tag {
+            color: #78a9ff;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 3px;
+            font-weight: 700;
+        }
+
+        h1 {
+            font-size: clamp(48px, 8vw, 88px);
+            line-height: 1.08;
+            margin: 22px 0;
+            letter-spacing: -4px;
+        }
+
+        h1 span {
+            color: #78a9ff;
+        }
+
+        .hero p {
+            max-width: 650px;
+            color: #aab6ca;
+            font-size: 18px;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 35px;
+        }
+
+        .button {
+            padding: 13px 23px;
+            border-radius: 7px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .primary {
+            background: #78a9ff;
+            color: #080b14;
+        }
+
+        .secondary {
+            border: 1px solid #35415a;
+            color: white;
+        }
+
+        section {
+            padding: 85px 9%;
+        }
+
+        .section-title {
+            font-size: 35px;
+            margin-bottom: 15px;
+        }
+
+        .section-description {
+            color: #aab6ca;
+            max-width: 680px;
+            margin-bottom: 35px;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .feature {
+            padding: 27px;
+            border: 1px solid #263149;
+            border-radius: 12px;
+            background: #101624;
+        }
+
+        .feature h3 {
+            margin-bottom: 10px;
+            color: #8bb5ff;
+        }
+
+        .feature p {
+            color: #aab6ca;
+            font-size: 14px;
+        }
+
+        .code-area {
+            background: #101624;
+            border: 1px solid #263149;
+            border-radius: 12px;
+            padding: 25px;
+            overflow-x: auto;
+        }
+
+        pre {
+            color: #b9d0ff;
+            font-size: 14px;
+            line-height: 1.9;
+        }
+
+        code {
+            font-family: "SFMono-Regular", Consolas, monospace;
+        }
+
+        .install {
+            background: #101624;
+        }
+
+        .install-command {
+            display: inline-block;
+            padding: 17px 22px;
+            background: #080b14;
+            border: 1px solid #35415a;
+            border-radius: 8px;
+            color: #8bb5ff;
+            font-family: monospace;
+            margin-top: 10px;
+        }
+
+        .note {
+            color: #aab6ca;
+            font-size: 13px;
+            margin-top: 18px;
+        }
+
+        footer {
+            padding: 35px 9%;
+            border-top: 1px solid #20283b;
+            color: #8794aa;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        footer a {
+            color: #8bb5ff;
+        }
+
+        @media (max-width: 650px) {
+            nav {
+                align-items: flex-start;
+                gap: 15px;
+                flex-direction: column;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+
+            .hero {
+                padding-top: 75px;
+            }
+
+            h1 {
+                letter-spacing: -2px;
+            }
+
+            section {
+                padding: 65px 7%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<nav>
+    <a href="#" class="logo">WEN.</a>
+
+    <div class="nav-links">
+        <a href="#about">About</a>
+        <a href="#features">Features</a>
+        <a href="#examples">Examples</a>
+        <a href="#install">Installation</a>
+        <a href="https://github.com/lampard1189-hub/Wen-Script">GitHub</a>
+    </div>
+</nav>
+
+<header class="hero">
+    <div class="tag">Introducing Wen 0.2.0-alpha.1</div>
+
+    <h1>Think in code.<br><span>Build with Wen.</span></h1>
+
+    <p>
+        Wen is a programming language project featuring a compiler
+        pipeline that transforms source code into LLVM Intermediate
+        Representation and native executables.
+    </p>
+
+    <div class="actions">
+        <a class="button primary" href="#install">
+            Get Started
+        </a>
+
+        <a class="button secondary"
+           href="https://github.com/lampard1189-hub/Wen-Script">
+            Explore GitHub
+        </a>
+    </div>
+</header>
+
+<section id="about">
+    <div class="tag">01 / About Wen</div>
+
+    <h2 class="section-title">A language with its own compiler.</h2>
+
+    <p class="section-description">
+        Wen is an independently developed programming language.
+        Its compiler includes lexical analysis, parsing, semantic
+        analysis and LLVM-based code generation.
+    </p>
+</section>
+
+<section id="features">
+    <div class="tag">02 / Technology</div>
+
+    <h2 class="section-title">Inside the compiler.</h2>
+
+    <p class="section-description">
+        Wen uses a multi-stage compilation architecture to process
+        programs and generate native executables.
+    </p>
+
+    <div class="features">
+
+        <article class="feature">
+            <h3>Lexer</h3>
+            <p>Transforms source text into tokens for the compiler.</p>
+        </article>
+
+        <article class="feature">
+            <h3>Parser</h3>
+            <p>Processes tokens into structured program representations.</p>
+        </article>
+
+        <article class="feature">
+            <h3>Semantic Analysis</h3>
+            <p>Checks program meaning and identifies invalid operations.</p>
+        </article>
+
+        <article class="feature">
+            <h3>LLVM Code Generation</h3>
+            <p>Generates LLVM Intermediate Representation for compilation.</p>
+        </article>
+
+        <article class="feature">
+            <h3>Native Compilation</h3>
+            <p>Uses Clang to produce native executable programs.</p>
+        </article>
+
+        <article class="feature">
+            <h3>Command-line Interface</h3>
+            <p>Install the compiler and run it through the wen command.</p>
+        </article>
+
+    </div>
+</section>
+
+<section id="examples">
+    <div class="tag">03 / Getting Started</div>
+
+    <h2 class="section-title">Your first Wen program.</h2>
+
+    <p class="section-description">
+        Create a file named hello.wen and write:
+    </p>
+
+    <div class="code-area">
+<pre><code>print("Hello from Wen!")</code></pre>
+    </div>
+
+    <p class="section-description" style="margin-top: 22px;">
+        Compile your program from the terminal:
+    </p>
+
+    <div class="code-area">
+<pre><code>wen hello.wen</code></pre>
+    </div>
+</section>
+
+<section id="install" class="install">
+    <div class="tag">04 / Installation</div>
+
+    <h2 class="section-title">Install Wen with Python.</h2>
+
+    <p class="section-description">
+        Wen is distributed through the Python Package Index.
+        Install the current published alpha version using pip.
+    </p>
+
+    <div class="install-command">
+        pip install wen-lang==0.2.0a1
+    </div>
+
+    <p class="note">
+        Requirements: Python 3.10 or later and Clang available
+        on your system for native compilation.
+    </p>
+
+    <div class="actions">
+        <a class="button primary"
+           href="https://pypi.org/project/wen-lang/">
+            View on PyPI
+        </a>
+
+        <a class="button secondary"
+           href="https://github.com/lampard1189-hub/Wen-Script">
+            Source Code
+        </a>
+    </div>
+</section>
+
+<footer>
+    <span>© 2026 Wen Programming Language</span>
+
+    <span>
+        <a href="https://github.com/lampard1189-hub/Wen-Script">
+            GitHub
+        </a>
+        &nbsp; · &nbsp;
+        <a href="https://pypi.org/project/wen-lang/">
+            PyPI
+        </a>
+    </span>
+</footer>
+
+</body>
+</html>
+
