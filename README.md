@@ -2,7 +2,7 @@
 
 **Wen** is an experimental, Python-inspired programming language that compiles source code into native executables using LLVM.
 
-Wen is designed to explore programming-language design, compiler construction, semantic analysis, and native code generation.
+Wen explores programming-language design, compiler construction, semantic analysis, and native code generation.
 
 **Current release:** `0.2.0a1`
 **Development status:** Experimental alpha
@@ -12,11 +12,14 @@ Wen is designed to explore programming-language design, compiler construction, s
 - Python-inspired syntax
 - Variable declarations using `let`
 - Integer, decimal, string, and boolean values
-- Arithmetic operations
-- Comparison operators
+- Arithmetic and comparison operators
 - Output using `print()`
 - Conditional statements using `if` and `else`
 - Loops using `while`
+- User-defined functions using `fn`
+- Function parameters and return values
+- Nested and zero-argument function calls
+- Decimal function return values
 - Variable assignment
 - Semantic analysis
 - LLVM intermediate representation (IR) generation
@@ -24,30 +27,30 @@ Wen is designed to explore programming-language design, compiler construction, s
 
 ## How Wen Works
 
-Wen uses a compiler pipeline that transforms source code into a native executable.
+Wen uses a compiler pipeline to transform source code into a native executable.
 
 ```text
 Wen Source Code
-      |
-      v
+       |
+       v
      Lexer
-      |
-      v
+       |
+       v
      Parser
-      |
-      v
+       |
+       v
 Semantic Analysis
-      |
-      v
- LLVM Code Generation
-      |
-      v
+       |
+       v
+LLVM Code Generation
+       |
+       v
     LLVM IR
-      |
-      v
+       |
+       v
  Native Compilation
-      |
-      v
+       |
+       v
 Executable Program
 ```
 
@@ -57,52 +60,48 @@ Executable Program
 - Clang compiler
 - A supported development environment
 
-Clang must be available on your system for native compilation.
-
 ## Installation
 
-Install Wen from PyPI:
+The published PyPI package is an experimental alpha release:
 
 ```bash
 python3 -m pip install wen-lang==0.2.0a1
 ```
 
-Verify the installation:
+**Note:** The latest function-development work may be ahead of the published PyPI release. Use the development installation below to access the current development branch.
 
-```bash
-wen --help
-```
-
-## Your First Wen Program
+## Getting Started
 
 Create a file named `hello.wen`:
 
 ```wen
-let name = "Wen"
-let version = 2
-
-print("Hello from Wen!")
-print(name)
-print(version)
+let message = "Hello from Wen!"
+print(message)
 ```
 
-Compile and run it:
+Run it from the project source:
 
 ```bash
-wen hello.wen
+python3 src/main.py hello.wen
 ```
 
-## Control Flow Example
+## Variables and Expressions
+
+Wen supports variable declarations and arithmetic expressions.
 
 ```wen
-let age = 20
+let first = 10
+let second = 5
+let result = first + second
 
-if age >= 18 {
-    print("Adult")
-} else {
-    print("Under 18")
-}
+print(result)
+```
 
+## Control Flow
+
+Wen supports conditional statements and `while` loops.
+
+```wen
 let count = 1
 
 while count <= 5 {
@@ -111,12 +110,45 @@ while count <= 5 {
 }
 ```
 
+## Functions
+
+Wen supports user-defined functions using the `fn` keyword, with parameters and return values.
+
+### Function example
+
+```wen
+fn add(a, b) {
+    return a + b
+}
+
+fn multiply(a, b) {
+    return a * b
+}
+
+let result = add(10, multiply(2, 3))
+print(result)
+```
+
+### Function capabilities
+
+- User-defined functions
+- Function parameters and return values
+- Nested function calls
+- Zero-argument function calls
+- Integer and decimal function return values
+
+### Current limitations
+
+- Function parameters currently support integer values.
+- Return statements must be the final top-level statement in a function.
+- Return statements inside conditional statements and loops are not yet supported.
+
 ## Development Installation
 
-To work with the source code:
+Clone the development branch:
 
 ```bash
-git clone https://github.com/lampard1189-hub/Wen-Script.git
+git clone -b development/v0.2 https://github.com/lampard1189-hub/Wen-Script.git
 cd Wen-Script
 ```
 
@@ -126,37 +158,51 @@ Run Wen directly from the source:
 python3 src/main.py examples/hello.wen
 ```
 
-Run the automated tests:
+## Running Tests
+
+Run the test suite:
 
 ```bash
 python3 -m unittest discover -s tests -v
 ```
 
-## Project Links
+## Project Structure
 
-- **Official Website:** https://lampard1189-hub.github.io/Wen-Script/
-- **GitHub Repository:** https://github.com/lampard1189-hub/Wen-Script
-- **PyPI Package:** https://pypi.org/project/wen-lang/
-- **Sitemap:** https://lampard1189-hub.github.io/Wen-Script/sitemap.xml
+```text
+Wen-Script/
+|
+|-- src/
+|   |-- lexer/
+|   |-- parser/
+|   |-- compiler/
+|   |-- runtime/
+|
+|-- examples/
+|-- tests/
+|-- docs/
+|-- README.md
+|-- pyproject.toml
+```
 
 ## Development Roadmap
 
-Wen is actively experimental. Potential future improvements include:
-
-- Expanded function support
-- User-defined types
+- Decimal function parameters
+- Return statements inside conditional statements and loops
 - Improved compiler diagnostics
+- User-defined types
 - Additional target architectures
 - Expanded standard library
 - More advanced memory management
 
-## Contributing
+## Project Links
 
-Contributions, suggestions, bug reports, and discussions are welcome.
+- **GitHub Repository:** https://github.com/lampard1189-hub/Wen-Script
+- **Documentation:** https://lampard1189-hub.github.io/Wen-Script/docs/
+- **Project Website:** https://lampard1189-hub.github.io/Wen-Script/
+- **PyPI:** https://pypi.org/project/wen-lang/
 
-Explore the repository and follow the project's development.
+## License
 
 ## License
 
 See the `LICENSE` file for licensing information.
-
