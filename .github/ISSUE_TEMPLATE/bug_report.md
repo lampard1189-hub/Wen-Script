@@ -23,12 +23,3 @@ What happened instead?
 ## Wen code
 ```wen
 # Add a minimal example here
-```
-
-## Environment
-- Wen version:
-- Python version:
-- Operating system:
-
-## Additional information
-Add any other relevant information.
