@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 
 KEYWORDS = {
-    "let", "print", "if", "else", "while",
+    "let", "print", "if", "else", "while", "fn", "return",
     "true", "false"
 }
 

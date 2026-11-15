@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 
 
+# ==========================================
 # ABSTRACT SYNTAX TREE
+# ==========================================
 
 @dataclass
 class Number:
@@ -37,6 +39,16 @@ class Unary:
 
 
 @dataclass
+class FunctionCall:
+    name: str
+    arguments: list
+
+
+# ==========================================
+# STATEMENTS
+# ==========================================
+
+@dataclass
 class LetStatement:
     name: str
     value: object
@@ -67,11 +79,25 @@ class WhileStatement:
 
 
 @dataclass
+class FunctionDefinition:
+    name: str
+    parameters: list
+    body: list
+
+
+@dataclass
+class ReturnStatement:
+    value: object
+
+
+@dataclass
 class Program:
     statements: list
 
 
+# ==========================================
 # PARSER
+# ==========================================
 
 class Parser:
 
@@ -98,30 +124,37 @@ class Parser:
 
     def advance(self):
         token = self.current()
+
         if token.type != "EOF":
             self.position += 1
+
         return token
 
     def peek(self):
         if self.position + 1 < len(self.tokens):
             return self.tokens[self.position + 1]
+
         return self.tokens[-1]
 
     def match(self, token_type, value=None):
         token = self.current()
+
         if token.type == token_type:
             if value is None or token.value == value:
                 self.advance()
                 return True
+
         return False
 
     def expect(self, token_type, value=None):
         token = self.current()
+
         if not self.match(token_type, value):
             raise SyntaxError(
                 f"Expected {value or token_type} "
                 f"at line {token.line}, column {token.column}"
             )
+
         return token
 
     def skip_separators(self):
@@ -133,6 +166,7 @@ class Parser:
 
     def parse(self):
         statements = []
+
         self.skip_separators()
 
         while self.current().type != "EOF":
@@ -141,8 +175,13 @@ class Parser:
 
         return Program(statements)
 
+    # ======================================
+    # BLOCKS
+    # ======================================
+
     def block(self):
         self.expect("PUNCTUATION", "{")
+
         statements = []
         self.skip_separators()
 
@@ -157,17 +196,67 @@ class Parser:
             self.skip_separators()
 
         self.expect("PUNCTUATION", "}")
+
         return statements
+
+    # ======================================
+    # FUNCTION DEFINITIONS
+    # ======================================
+
+    def function_definition(self):
+        self.expect("KEYWORD", "fn")
+
+        name = self.expect("IDENTIFIER").value
+
+        self.expect("PUNCTUATION", "(")
+
+        parameters = []
+
+        if not self.match("PUNCTUATION", ")"):
+            parameters.append(
+                self.expect("IDENTIFIER").value
+            )
+
+            while self.match("PUNCTUATION", ","):
+                parameters.append(
+                    self.expect("IDENTIFIER").value
+                )
+
+            self.expect("PUNCTUATION", ")")
+
+        body = self.block()
+
+        return FunctionDefinition(
+            name,
+            parameters,
+            body
+        )
+
+    # ======================================
+    # STATEMENTS
+    # ======================================
 
     def statement(self):
 
+        if self.current().type == "KEYWORD":
+            if self.current().value == "fn":
+                return self.function_definition()
+
+        if self.match("KEYWORD", "return"):
+            value = self.expression()
+            return ReturnStatement(value)
+
         if self.match("KEYWORD", "let"):
             name = self.expect("IDENTIFIER").value
+
             self.expect("OPERATOR", "=")
+
             value = self.expression()
+
             return LetStatement(name, value)
 
         if self.match("KEYWORD", "print"):
+
             if self.match("PUNCTUATION", "("):
                 value = self.expression()
                 self.expect("PUNCTUATION", ")")
@@ -178,6 +267,7 @@ class Parser:
 
         if self.match("KEYWORD", "if"):
             condition = self.expression()
+
             then_body = self.block()
             else_body = []
 
@@ -187,12 +277,16 @@ class Parser:
                 else_body = self.block()
 
             return IfStatement(
-                condition, then_body, else_body
+                condition,
+                then_body,
+                else_body
             )
 
         if self.match("KEYWORD", "while"):
             condition = self.expression()
+
             body = self.block()
+
             return WhileStatement(condition, body)
 
         if (
@@ -201,33 +295,57 @@ class Parser:
             and self.peek().value == "="
         ):
             name = self.advance().value
+
             self.expect("OPERATOR", "=")
+
             value = self.expression()
+
             return AssignmentStatement(name, value)
 
         token = self.current()
+
         raise SyntaxError(
             f"Unexpected statement at "
             f"{token.line}:{token.column}"
         )
 
+    # ======================================
+    # EXPRESSIONS
+    # ======================================
+
     def expression(self, min_precedence=0):
+
         left = self.primary()
 
         while self.current().type == "OPERATOR":
+
             operator = self.current().value
-            precedence = self.PRECEDENCE.get(operator, -1)
+
+            precedence = self.PRECEDENCE.get(
+                operator, -1
+            )
 
             if precedence < min_precedence:
                 break
 
             self.advance()
+
             right = self.expression(precedence + 1)
-            left = Binary(left, operator, right)
+
+            left = Binary(
+                left,
+                operator,
+                right
+            )
 
         return left
 
+    # ======================================
+    # PRIMARY EXPRESSIONS
+    # ======================================
+
     def primary(self):
+
         token = self.current()
 
         if self.match("NUMBER"):
@@ -240,14 +358,45 @@ class Parser:
             return Boolean(token.value)
 
         if self.match("IDENTIFIER"):
-            return Variable(token.value)
+
+            name = token.value
+
+            if self.match("PUNCTUATION", "("):
+
+                arguments = []
+
+                if not self.match("PUNCTUATION", ")"):
+
+                    arguments.append(
+                        self.expression()
+                    )
+
+                    while self.match("PUNCTUATION", ","):
+                        arguments.append(
+                            self.expression()
+                        )
+
+                    self.expect("PUNCTUATION", ")")
+
+                return FunctionCall(
+                    name,
+                    arguments
+                )
+
+            return Variable(name)
 
         if self.match("OPERATOR", "-"):
-            return Unary("-", self.expression(4))
+            return Unary(
+                "-",
+                self.expression(4)
+            )
 
         if self.match("PUNCTUATION", "("):
+
             value = self.expression()
+
             self.expect("PUNCTUATION", ")")
+
             return value
 
         raise SyntaxError(

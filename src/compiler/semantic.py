@@ -4,19 +4,79 @@ class SemanticError(Exception):
 
 
 class SemanticAnalyzer:
-
     def __init__(self):
         self.symbols = {}
+        self.functions = {}
+        self.current_function = None
+        self.return_type = None
 
     def analyze(self, program):
-        from src.parser.parser import Program
+        from src.parser.parser import Program, FunctionDefinition
 
         if not isinstance(program, Program):
             raise SemanticError("Expected a Program AST.")
 
         self.symbols = {}
-        self.analyze_statements(program.statements)
+        self.functions = {}
+
+        # Register function names and parameter counts first.
+        for statement in program.statements:
+            if isinstance(statement, FunctionDefinition):
+                if statement.name in self.functions:
+                    raise SemanticError(
+                        f"Function '{statement.name}' is already defined."
+                    )
+
+                self.functions[statement.name] = {
+                    "parameters": statement.parameters,
+                    "return_type": None
+                }
+
+        # Analyse function bodies.
+        for statement in program.statements:
+            if isinstance(statement, FunctionDefinition):
+                self.analyze_function(statement)
+
+        # Analyse ordinary top-level statements.
+        main_statements = [
+            statement for statement in program.statements
+            if not isinstance(statement, FunctionDefinition)
+        ]
+
+        self.current_function = None
+        self.return_type = None
+        self.symbols = {}
+        self.analyze_statements(main_statements)
+
         return True
+
+    def analyze_function(self, function):
+        from src.parser.parser import ReturnStatement
+
+        self.current_function = function.name
+        self.return_type = None
+        self.symbols = {}
+
+        for parameter in function.parameters:
+            if parameter in self.symbols:
+                raise SemanticError(
+                    f"Duplicate parameter '{parameter}'."
+                )
+
+            self.symbols[parameter] = "number"
+
+        self.analyze_statements(function.body)
+
+        if self.return_type is None:
+            raise SemanticError(
+                f"Function '{function.name}' must return a value."
+            )
+
+        self.functions[function.name]["return_type"] = self.return_type
+
+        self.current_function = None
+        self.return_type = None
+        self.symbols = {}
 
     def analyze_statements(self, statements):
         from src.parser.parser import (
@@ -24,12 +84,20 @@ class SemanticAnalyzer:
             AssignmentStatement,
             PrintStatement,
             IfStatement,
-            WhileStatement
+            WhileStatement,
+            ReturnStatement,
+            FunctionDefinition
         )
 
         for statement in statements:
 
-            if isinstance(statement, LetStatement):
+            if isinstance(statement, FunctionDefinition):
+                if self.current_function is not None:
+                    raise SemanticError(
+                        "Functions cannot be defined inside other functions."
+                    )
+
+            elif isinstance(statement, LetStatement):
                 if statement.name in self.symbols:
                     raise SemanticError(
                         f"Variable '{statement.name}' is already declared."
@@ -55,6 +123,27 @@ class SemanticAnalyzer:
 
             elif isinstance(statement, PrintStatement):
                 self.expression_type(statement.value)
+
+            elif isinstance(statement, ReturnStatement):
+                if self.current_function is None:
+                    raise SemanticError(
+                        "Return statements must be inside a function."
+                    )
+
+                value_type = self.expression_type(statement.value)
+
+                if value_type not in {"number", "decimal"}:
+                    raise SemanticError(
+                        "Functions must return a number or decimal."
+                    )
+
+                if self.return_type is not None:
+                    if self.return_type != value_type:
+                        raise SemanticError(
+                            "A function must use a consistent return type."
+                        )
+
+                self.return_type = value_type
 
             elif isinstance(statement, IfStatement):
                 condition_type = self.expression_type(
@@ -104,11 +193,16 @@ class SemanticAnalyzer:
             Boolean,
             Variable,
             Binary,
-            Unary
+            Unary,
+            FunctionCall
         )
 
         if isinstance(expression, Number):
-            return "decimal" if isinstance(expression.value, float) else "number"
+            return (
+                "decimal"
+                if isinstance(expression.value, float)
+                else "number"
+            )
 
         if isinstance(expression, String):
             return "string"
@@ -124,12 +218,40 @@ class SemanticAnalyzer:
 
             return self.symbols[expression.name]
 
+        if isinstance(expression, FunctionCall):
+            if expression.name not in self.functions:
+                raise SemanticError(
+                    f"Undefined function '{expression.name}'."
+                )
+
+            function = self.functions[expression.name]
+            parameters = function["parameters"]
+
+            if len(expression.arguments) != len(parameters):
+                raise SemanticError(
+                    f"Function '{expression.name}' expects "
+                    f"{len(parameters)} arguments, but received "
+                    f"{len(expression.arguments)}."
+                )
+
+            for argument in expression.arguments:
+                argument_type = self.expression_type(argument)
+
+                if argument_type not in {"number", "decimal"}:
+                    raise SemanticError(
+                        "Function arguments must be numeric."
+                    )
+
+            return function["return_type"] or "number"
+
         if isinstance(expression, Unary):
             operand_type = self.expression_type(
                 expression.operand
             )
 
-            if expression.operator == "-" and operand_type in {"number", "decimal"}:
+            if expression.operator == "-" and operand_type in {
+                "number", "decimal"
+            }:
                 return operand_type
 
             raise SemanticError(
@@ -141,23 +263,31 @@ class SemanticAnalyzer:
             right_type = self.expression_type(expression.right)
 
             operator = expression.operator
-
             arithmetic = {"+", "-", "*", "/", "%"}
             comparisons = {"<", ">", "<=", ">="}
             equality = {"==", "!="}
-
             numeric_types = {"number", "decimal"}
 
             if operator in arithmetic:
-                if left_type not in numeric_types or right_type not in numeric_types:
+                if (
+                    left_type not in numeric_types
+                    or right_type not in numeric_types
+                ):
                     raise SemanticError(
                         f"Operator '{operator}' requires numbers."
                     )
 
-                return "decimal" if "decimal" in {left_type, right_type} else "number"
+                return (
+                    "decimal"
+                    if "decimal" in {left_type, right_type}
+                    else "number"
+                )
 
             if operator in comparisons:
-                if left_type not in numeric_types or right_type not in numeric_types:
+                if (
+                    left_type not in numeric_types
+                    or right_type not in numeric_types
+                ):
                     raise SemanticError(
                         f"Comparison '{operator}' requires numbers."
                     )
@@ -166,7 +296,8 @@ class SemanticAnalyzer:
 
             if operator in equality:
                 if left_type != right_type and not (
-                    left_type in numeric_types and right_type in numeric_types
+                    left_type in numeric_types
+                    and right_type in numeric_types
                 ):
                     raise SemanticError(
                         "Equality comparisons require matching types."

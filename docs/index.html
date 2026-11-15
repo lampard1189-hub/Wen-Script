@@ -394,10 +394,24 @@ while count <= 5 {
     count = count + 1
 }</code></pre>
 
-        <h3>Planned Features</h3>
+        <h3>Functions</h3>
+        <pre><code>fn add(a, b) {
+    return a + b
+}
+
+let result = add(10, 5)
+print(result)</code></pre>
         <p>
-            Function declarations and return statements are planned
-            for a future release and are not currently supported.
+            Define functions with the <code>fn</code> keyword.
+            Functions can accept parameters, return values and be called
+            from other expressions. Functions with no parameters are
+            also supported. Decimal return values are supported.
+        </p>
+        <p>
+            Current limitations: function arguments must be whole
+            numbers, and a return statement must be the final
+            top-level statement in its function. Returns inside
+            conditional or loop blocks are not yet supported.
         </p>
 
         <h3>Booleans</h3>
@@ -493,7 +507,7 @@ let score = 100</code></pre>
 
         <p>
             The source repository contains example programs covering
-            arithmetic, control flow, decimals, variables and basic output.
+            arithmetic, control flow, decimals, variables, functions and output.
         </p>
 
         <div class="links">

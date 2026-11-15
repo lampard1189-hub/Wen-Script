@@ -2,6 +2,7 @@
 import unittest
 import subprocess
 import sys
+import tempfile
 
 from pathlib import Path
 
@@ -171,6 +172,125 @@ class TestWenDecimal(unittest.TestCase):
 
         self.assertEqual(execution.returncode, 0)
         self.assertEqual(execution.stdout, "14.75\n25\n10.25\n")
+
+
+class TestWenFunctions(unittest.TestCase):
+
+    def test_function_codegen(self):
+        source = """
+fn add(a, b) {
+    return a + b
+}
+
+let result = add(10, 5)
+print(result)
+"""
+
+        tree = Parser(Lexer(source).tokenize()).parse()
+        analyzer = SemanticAnalyzer()
+        analyzer.analyze(tree)
+
+        ir = LLVMCodeGenerator().generate(
+            tree,
+            analyzer.functions,
+        )
+
+        self.assertIn(
+            "define i64 @wen_fn_add(i64 %arg0, i64 %arg1)",
+            ir,
+        )
+        self.assertIn(
+            "@wen_fn_add",
+            ir,
+        )
+
+    def test_native_function_compilation(self):
+        source = """
+fn add(a, b) {
+    return a + b
+}
+
+fn multiply(a, b) {
+    return a * b
+}
+
+fn identity(value) {
+    return value
+}
+
+fn get_value() {
+    return 20
+}
+
+fn get_decimal() {
+    return 12.75
+}
+
+let result = add(multiply(2, 3), add(1, 2))
+let copied = identity(result)
+let final_result = add(copied, get_value())
+let decimal_result = get_decimal()
+
+print(result)
+print(copied)
+print(final_result)
+print(decimal_result)
+"""
+
+        with tempfile.TemporaryDirectory() as temporary:
+            source_file = (
+                Path(temporary) / "function_regression.wen"
+            )
+
+            source_file.write_text(
+                source,
+                encoding="utf-8",
+            )
+
+            compilation = subprocess.run(
+                [
+                    sys.executable,
+                    str(ROOT / "src" / "main.py"),
+                    str(source_file),
+                ],
+                cwd=ROOT,
+                capture_output=True,
+                text=True,
+            )
+
+            self.assertEqual(
+                compilation.returncode,
+                0,
+                compilation.stderr,
+            )
+
+            executable = (
+                ROOT / "build" / "function_regression"
+            )
+
+            try:
+                execution = subprocess.run(
+                    [str(executable)],
+                    capture_output=True,
+                    text=True,
+                )
+
+                self.assertEqual(
+                    execution.returncode,
+                    0,
+                    execution.stderr,
+                )
+
+                self.assertEqual(
+                    execution.stdout,
+                    "9\n9\n29\n12.75\n",
+                )
+
+            finally:
+                executable.unlink(missing_ok=True)
+                (ROOT / "build" / "function_regression.ll").unlink(
+                    missing_ok=True
+                )
 
 
 if __name__ == "__main__":
