@@ -221,7 +221,8 @@ class SemanticAnalyzer:
         if isinstance(expression, FunctionCall):
             if expression.name not in self.functions:
                 raise SemanticError(
-                    f"Undefined function '{expression.name}'."
+                    f"Undefined function '{expression.name}'. Check the spelling "
+                    f"or define it with fn {expression.name}(...)."
                 )
 
             function = self.functions[expression.name]
@@ -229,17 +230,25 @@ class SemanticAnalyzer:
 
             if len(expression.arguments) != len(parameters):
                 raise SemanticError(
-                    f"Function '{expression.name}' expects "
+                    f"Function {expression.name}({', '.join(parameters)}) expects "
                     f"{len(parameters)} arguments, but received "
                     f"{len(expression.arguments)}."
                 )
 
-            for argument in expression.arguments:
+            for position, (parameter, argument) in enumerate(
+                zip(parameters, expression.arguments), start=1
+            ):
                 argument_type = self.expression_type(argument)
 
-                if argument_type not in {"number", "decimal"}:
+                if argument_type != "number":
+                    detail = (
+                        " Function parameters currently use LLVM i64."
+                        if argument_type == "decimal" else ""
+                    )
                     raise SemanticError(
-                        "Function arguments must be numeric."
+                        f"Argument {position} ('{parameter}') to "
+                        f"'{expression.name}' must be a whole number, "
+                        f"not {argument_type}.{detail}"
                     )
 
             return function["return_type"] or "number"

@@ -8,7 +8,7 @@ from pathlib import Path
 
 from src.lexer.lexer import Lexer
 from src.parser.parser import Parser
-from src.compiler.semantic import SemanticAnalyzer
+from src.compiler.semantic import SemanticAnalyzer, SemanticError
 from src.compiler.codegen import LLVMCodeGenerator, CodegenError
 
 
@@ -175,6 +175,30 @@ class TestWenDecimal(unittest.TestCase):
 
 
 class TestWenFunctions(unittest.TestCase):
+
+    def test_invalid_calls_report_how_to_fix_them(self):
+        definition = "fn add(a, b) { return a + b }\n"
+        cases = [
+            ("missing(1)", r"Undefined function 'missing'.*fn missing"),
+            ("add(1)", r"add\(a, b\) expects 2 arguments, but received 1"),
+            ("add(1, 2.5)", r"Argument 2 \('b'\).*whole number.*i64"),
+            ("add(true, 2)", r"Argument 1 \('a'\).*whole number, not boolean"),
+        ]
+        for call, message in cases:
+            with self.subTest(call=call):
+                tree = Parser(Lexer(definition + "print(" + call + ")").tokenize()).parse()
+                with self.assertRaisesRegex(SemanticError, message):
+                    SemanticAnalyzer().analyze(tree)
+
+    def test_nested_return_identifies_function_and_supported_shape(self):
+        source = "fn f(value) { if value > 0 { return value } return 0 }"
+        tree = Parser(Lexer(source).tokenize()).parse()
+        analyzer = SemanticAnalyzer()
+        analyzer.analyze(tree)
+        with self.assertRaisesRegex(
+            CodegenError, r"Function 'f'.*final top-level statement"
+        ):
+            LLVMCodeGenerator().generate(tree, analyzer.functions)
 
     def test_function_codegen(self):
         source = """

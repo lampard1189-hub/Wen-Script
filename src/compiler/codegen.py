@@ -707,8 +707,9 @@ class LLVMCodeGenerator:
             if isinstance(statement, (IfStatement, WhileStatement)):
                 if self.contains_return([statement]):
                     raise CodegenError(
-                        "Returns inside if and while blocks "
-                        "are not supported yet."
+                        f"Function '{function.name}' cannot return inside an if "
+                        "or while block. Compute the result in the block, "
+                        "then return it as the final top-level statement."
                     )
 
         return_statements = [
